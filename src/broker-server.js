@@ -55,6 +55,8 @@ class BrokerServer {
 
             if (!playersInRoom.length) {
                 removeRoom(player.room);
+            } else {
+                this.updateRotation(player);
             }
         }
     }
@@ -80,8 +82,10 @@ class BrokerServer {
 
         // update players board
         this.io.to(player.room).emit('PLAYER_HAS_SHOT', brokerMessage);
+        this.updateRotation(player);
+    }
 
-        // update rotation
+    updateRotation(player) {
         const playersInRoom = getPlayersInRoom(player.room);
         const playerIndex = playersInRoom.findIndex((p) => p.id === player.id);
         
