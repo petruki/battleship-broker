@@ -22,7 +22,7 @@ class BrokerServer {
     onCheckExistingRoom(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
-            brokerMessage.exist = getRooms().includes(brokerMessage.room);
+            brokerMessage.exist = false// getRooms().includes(brokerMessage.room);
     
             if (!brokerMessage.exist) {
                 addRoom(brokerMessage.room);
