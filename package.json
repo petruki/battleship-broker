@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Message Broker for working with Battleship Java Game App",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node ./src/index.js",
     "dev": "env-cmd -e dev nodemon ./src/index.js",

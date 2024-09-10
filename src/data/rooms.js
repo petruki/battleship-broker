@@ -1,6 +1,6 @@
 const rooms = [];
 
-const addRoom = (room) => {
+export const addRoom = (room) => {
     if (!rooms.includes(room)) {
         rooms.push(room);
     }
@@ -8,7 +8,7 @@ const addRoom = (room) => {
     return { rooms };
 }
 
-const removeRoom = (room) => {
+export const removeRoom = (room) => {
     const index = rooms.indexOf(room);
     if (index >= 0) {
         rooms.splice(index, 1);
@@ -17,12 +17,6 @@ const removeRoom = (room) => {
     return { rooms };
 }
 
-const getRooms = () => {
+export const getRooms = () => {
     return rooms;
-}
-
-module.exports = {
-    addRoom,
-    removeRoom,
-    getRooms
 }

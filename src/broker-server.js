@@ -1,28 +1,27 @@
-const socketio = require('socket.io');
-const { addRoom, getRooms, removeRoom } = require('./data/rooms');
-const { addPlayer, getPlayersInRoom, removePlayer, getPlayer } = require('./data/players');
+import * as socketio from 'socket.io';
+import { addRoom, removeRoom } from './data/rooms.js';
+import { addPlayer, getPlayersInRoom, removePlayer, getPlayer } from './data/players.js';
 
-class BrokerServer {
+export default class BrokerServer {
     constructor(server) {
-        this.io = socketio(server);
-        this.init(); 
+        this.io = new socketio.Server(server);
     }
 
     init() {
         this.io.on('connection', (socket) => {
-            socket.on('CHECK_CREATE_ROOM', (req) => this.onCheckExistingRoom(socket, req));
-            socket.on('PLAYER_HAS_JOINED', (req) => this.onPlayerJoinRoom(socket, req));
-            socket.on('PLAYER_HAS_DISCONNECTED', (req) => this.onPlayerDisconnected(socket, req));
-            socket.on('PLAYER_HAS_SHOT', (req) => this.onPlayerShot(socket, req));
-            socket.on('MATCH_STARTED', (req) => this.onMatchStarted(socket, req));
-            socket.on('NEW_ROUND', (req) => this.onNewRound(socket, req));
+            socket.on('CHECK_CREATE_ROOM', (req) => this.#onCheckExistingRoom(socket, req));
+            socket.on('PLAYER_HAS_JOINED', (req) => this.#onPlayerJoinRoom(socket, req));
+            socket.on('PLAYER_HAS_DISCONNECTED', (req) => this.#onPlayerDisconnected(socket, req));
+            socket.on('PLAYER_HAS_SHOT', (req) => this.#onPlayerShot(socket, req));
+            socket.on('MATCH_STARTED', (req) => this.#onMatchStarted(socket, req));
+            socket.on('NEW_ROUND', (req) => this.#onNewRound(socket, req));
         });
     }
 
-    onCheckExistingRoom(socket, req) {
+    #onCheckExistingRoom(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
-            brokerMessage.exist = false// getRooms().includes(brokerMessage.room);
+            brokerMessage.exist = false;
     
             if (!brokerMessage.exist) {
                 addRoom(brokerMessage.room);
@@ -36,7 +35,7 @@ class BrokerServer {
         }
     }
 
-    onPlayerJoinRoom(socket, req) {
+    #onPlayerJoinRoom(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
             socket.join(brokerMessage.room);
@@ -51,7 +50,7 @@ class BrokerServer {
         }
     }
 
-    onPlayerDisconnected(socket, req) {
+    #onPlayerDisconnected(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
             const player = removePlayer(socket.id);
@@ -65,7 +64,7 @@ class BrokerServer {
                 if (!playersInRoom.length) {
                     removeRoom(player.room);
                 } else {
-                    this.updateRotation(player);
+                    this.#updateRotation(player);
                 }
             }
         } catch (e) {
@@ -73,7 +72,7 @@ class BrokerServer {
         }
     }
 
-    onMatchStarted(socket, req) {
+    #onMatchStarted(socket, req) {
         try {
             const host = getPlayer(socket.id);
             this.io.to(host.room).emit('MATCH_STARTED');
@@ -82,7 +81,7 @@ class BrokerServer {
         }
     }
 
-    onNewRound(socket, req) {
+    #onNewRound(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
             const player = getPlayer(socket.id);
@@ -96,20 +95,21 @@ class BrokerServer {
         }
     }
     
-    onPlayerShot(socket, req) {
+    #onPlayerShot(socket, req) {
         try {
             const brokerMessage = JSON.parse(req);
             const player = getPlayer(socket.id);
+            console.log(brokerMessage);
 
             // update players board
             this.io.to(player.room).emit('PLAYER_HAS_SHOT', brokerMessage);
-            this.updateRotation(player);
+            this.#updateRotation(player);
         } catch (e) {
             console.log(e);
         }
     }
 
-    updateRotation(player) {
+    #updateRotation(player) {
         try {
             const playersInRoom = getPlayersInRoom(player.room);
             const playerIndex = playersInRoom.findIndex((p) => p.id === player.id);
@@ -124,5 +124,3 @@ class BrokerServer {
         }
     }
 }
-
-module.exports = BrokerServer;

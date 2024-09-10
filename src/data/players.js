@@ -1,6 +1,6 @@
 const players = [];
 
-const addPlayer = ({ id, username, room }) => {
+export const addPlayer = ({ id, username, room }) => {
     // Check existing players
     const existingUser = players.find((player) => {
         return player.room === room && player.username === username
@@ -19,7 +19,7 @@ const addPlayer = ({ id, username, room }) => {
     return { player };
 }
 
-const removePlayer = (id) => {
+export const removePlayer = (id) => {
     const index = players.findIndex((player) => player.id === id);
 
     if (index !== -1) {
@@ -27,18 +27,11 @@ const removePlayer = (id) => {
     }
 }
 
-const getPlayer = (id) => {
+export const getPlayer = (id) => {
     return players.find((player) => player.id === id);
 }
 
-const getPlayersInRoom = (room) => {
+export const getPlayersInRoom = (room) => {
     room = room.trim();
     return players.filter((player) => player.room === room);
-}
-
-module.exports = {
-    addPlayer, 
-    removePlayer, 
-    getPlayer, 
-    getPlayersInRoom
 }
